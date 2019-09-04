@@ -1,0 +1,44 @@
+# depslib dependency file v1.0
+1567600378 source:/home/bruno/Workspace/tweetSalt/tweetnacl.c
+	"tweetnacl.h"
+
+1567600378 /home/bruno/Workspace/tweetSalt/tweetnacl.h
+
+1567542568 source:/home/bruno/Workspace/tweetSalt/main.cpp
+	<iostream>
+	"tweetnacl.h"
+	"naclSupport.h"
+
+1567543857 /home/bruno/Workspace/tweetSalt/naclSupport.h
+	<stdio.h>
+	<stdint.h>
+
+1567543830 source:/home/bruno/Workspace/tweetSalt/naclSupport.c
+	"naclSupport.h"
+	<stdlib.h>
+
+1567546992 source:/home/bruno/Workspace/tweetSalt/tweetSalt.cpp
+	"tweetnacl.h"
+	"naclSupport.h"
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<time.h>
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<unistd.h>
+	<stdint.h>
+	<stdbool.h>
+	<getopt.h>
+	<pthread.h>
+	<libgen.h>
+	<set>
+	<errno.h>
+	<netdb.h>
+	<ifaddrs.h>
+	<sys/ioctl.h>
+	<net/if.h>
+
