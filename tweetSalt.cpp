@@ -37,7 +37,6 @@ uint8_t serverPublickey[crypto_box_PUBLICKEYBYTES];
 uint8_t serverSecretkey[crypto_box_SECRETKEYBYTES];
 uint8_t clientPublickey[crypto_box_PUBLICKEYBYTES];
 uint8_t clientSecretkey[crypto_box_SECRETKEYBYTES];
-uint8_t nonce[crypto_box_NONCEBYTES];
 
 bool serverKeyRxFlag = false;
 bool clientKeyRxFlag = false;
@@ -56,7 +55,6 @@ typedef struct
 {
     uint8_t     msgCode;
     uint8_t     pk[crypto_box_PUBLICKEYBYTES];
-    uint8_t     nonce[crypto_box_NONCEBYTES];
 }   keyExchangeMsg_t;
 
 typedef struct
@@ -69,6 +67,7 @@ typedef struct
 {
     uint8_t     msgCode;
     uint32_t    dateLen;
+    uint8_t     nonce[crypto_box_NONCEBYTES];
     char        s[MAX_MSG_LEN];
 }   textMsg_t;
 #pragma pack(pop)
@@ -129,7 +128,6 @@ void processServerModeRxMsg(RxArgs_t *theArgs, in_addr_t ipAddr, char *msg)
     {
         case KEY_EXCHANGE_MSG_CODE:
             memcpy(clientPublickey, pKeyExchangeMsg->pk, sizeof(clientPublickey));
-            memcpy(nonce, pKeyExchangeMsg->nonce, sizeof(nonce));
             crypto_box_keypair(serverPublickey, serverSecretkey);
             keyExchangeMsg_t serverKeyMsg;
             serverKeyMsg.msgCode = KEY_EXCHANGE_MSG_CODE;
@@ -157,7 +155,7 @@ void processServerModeRxMsg(RxArgs_t *theArgs, in_addr_t ipAddr, char *msg)
             if  (0 ==   crypto_box_open    (   (uint8_t *)decryptedMsg
                                                     , (const uint8_t *)(pTextMsg->s)
                                                     , pTextMsg->dateLen
-                                                    , nonce
+                                                    , (const uint8_t *)(pTextMsg->nonce)
                                                     , clientPublickey
                                                     , serverSecretkey
                                                 )
@@ -286,9 +284,7 @@ void sendClientKeys(in_addr_t serverAddr, uint16_t txPort, bool verboseFlag)
     keyExchangeMsg_t clientKeyMsg;
     clientKeyMsg.msgCode = KEY_EXCHANGE_MSG_CODE;
     crypto_box_keypair(clientPublickey, clientSecretkey);
-    randombytes_buf(nonce, sizeof(nonce));
     memcpy(&clientKeyMsg.pk, clientPublickey, sizeof(clientKeyMsg.pk));
-    memcpy(&clientKeyMsg.nonce, nonce, sizeof(clientKeyMsg.nonce));
 
     if (verboseFlag)
     {
@@ -322,10 +318,11 @@ void sendTOD(in_addr_t ipAddr, uint16_t txPort, bool encryptFlag, bool verboseFl
     if (encryptFlag)
     {
         textMsg.msgCode = CYPHER_TEXT_MSG_CODE;
+        randombytes_buf(textMsg.nonce, crypto_box_NONCEBYTES);
         if  (0 != crypto_box   (   (uint8_t *)(textMsg.s)
                                         , (const uint8_t *)clearText
                                         , paddedMsgLen
-                                        , nonce
+                                        , textMsg.nonce
                                         , serverPublickey
                                         , clientSecretkey
                                     )
