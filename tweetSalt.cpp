@@ -28,8 +28,8 @@ extern "C"
 #include <sys/ioctl.h>
 #include <net/if.h>
 
-const char *VERSION_STRING="1.0.2";
-const char *DATE_STRING="03-SEP-2019";
+const char *VERSION_STRING="1.0.3";
+const char *DATE_STRING="04-SEP-2019";
 
 #define MAX_MSG_LEN (512)
 
@@ -336,6 +336,7 @@ void sendTOD(in_addr_t ipAddr, uint16_t txPort, bool encryptFlag, bool verboseFl
     else
     {
         textMsg.msgCode = CLEAR_TEXT_MSG_CODE;
+        memset(textMsg.nonce, 0, crypto_box_NONCEBYTES);
         memcpy(textMsg.s, clearText, textMsg.dateLen);
         strcpy(textMsg.s, clearText);
     }
